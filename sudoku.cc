@@ -20,18 +20,26 @@ void Sudoku::generate(int diffLv) {
 	}
 }
 
-void Sudoku::onNumberChange(int id) {
+void Sudoku::onNumberChange(int) {
 	QTextEdit* sdr(qobject_cast<QTextEdit*>(this->sender()));
 	bool errHdl;
 	int chgId(sdr->windowTitle().toInt(&errHdl));
 	if (!errHdl) {
 		return;
 	}
-	int chgNum(sdr->toPlainText().toInt(&errHdl));
-	if (!errHdl || chgNum <= 0 || chgNum > 9) {
-		QPalette pte(sdr->palette());
-		pte.setColor(QPalette::Base, QColor(233, 99, 99));
-		sdr->setPalette(pte);
+	QString txt(sdr->toPlainText().trimmed());
+	int chgNum(txt.toInt(&errHdl));
+	if (txt.length() == 0) {
+		this->set(chgId, 0);
+		return;
+	} else if (!errHdl || chgNum <= 0 || chgNum > 9) {
+		int n(this->get(chgId));
+		if (n) {
+			sdr->setPlainText(QString("%1").arg(n));
+		} else {
+			sdr->setPlainText("");
+		}
+		fprintf(stderr, "A err");
 		return;
 	}
 	QPalette pte(sdr->palette());
@@ -41,6 +49,7 @@ void Sudoku::onNumberChange(int id) {
 	if (this->findConflict(chgId)) {
 		QPalette pte(sdr->palette());
 		pte.setColor(QPalette::Base, QColor(233, 99, 99));
+		fprintf(stderr, "B err");
 		sdr->setPalette(pte);
 	}
 	if (this->isFinished()) {

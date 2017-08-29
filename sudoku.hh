@@ -23,7 +23,7 @@ class Sudoku: public QObject, Sudokore {
 				QObject::connect(ec, SIGNAL(textChanged()), this, SLOT(onNumberChange()));
 				this->edits[i] = ec;
 			}
-			this->generate();
+			this->generate(77);
 		}
 	public slots:
 		void onNumberChange(int = -1);
