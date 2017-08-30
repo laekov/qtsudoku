@@ -13,6 +13,9 @@ class Sudokore {
 				o[i] = i + 1;
 			}
 		}
+		Sudokore(const Sudokore& v) {
+			memcpy(this, &v, sizeof(Sudokore));
+		}
 		int get(int);
 		void set(int, int);
 		int solve(bool = true);
@@ -21,3 +24,4 @@ class Sudokore {
 		bool isFinished();
 };
 #endif
+

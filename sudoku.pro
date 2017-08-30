@@ -8,5 +8,8 @@ INCLUDEPATH += .
 QT += gui widgets
 
 # Input
-SOURCES += main.cc sudoku.cc sudokore.cc
-HEADERS += sudoku.hh sudokore.hh
+SOURCES += main.cc sudokore.cc mainwnd.cc numgrid.cc
+HEADERS += sudokore.hh mainwnd.hh numgrid.hh
+
+FORMS += \
+    mainwnd.ui
