@@ -1,3 +1,5 @@
+#include <cmath>
+#include <QFont>
 #include "numgrid.hh"
 
 NumGrid::NumGrid(int id, QWidget* parent): QTextEdit(parent), id(id) {
@@ -31,7 +33,7 @@ void NumGrid::setNumber(int x) {
 	} else {
 		QString t("");
 		for (int i = 0; i < totn; ++ i) {
-			t += QString("%1 ").arg(ns[i]);
+			t += QString("%1").arg(ns[i]);
 		}
 		this->setText(t);
 		if (totn == 1) {
@@ -41,12 +43,21 @@ void NumGrid::setNumber(int x) {
 		}
 	}
 	if (x & (1 << 10)) {
-		bgc = Qt::black, fgc = Qt::white;
+		bgc = Qt::yellow;
 	} else if (x & (1 << 11)) {
-		fgc = Qt::white, bgc = Qt::darkBlue;
+		// fgc = Qt::white, bgc = Qt::darkBlue;
 	}
 	this->setReadOnly(ro);
 	this->setColor(bgc, fgc);
+	QFont qf;
+	if (totn > 0) {
+		int ch(this->height());
+		static const int xs[] = { 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3 };
+		ch = ch / 1.7;
+		qf.setFamily("Monospace");
+		qf.setPointSize(ch / xs[totn]);
+		this->setFont(qf);
+	}
 }
 
 bool NumGrid::eventFilter(QObject*, QEvent* evt) {

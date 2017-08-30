@@ -69,7 +69,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>500</y>
+     <y>490</y>
      <width>391</width>
      <height>61</height>
     </rect>
@@ -77,6 +77,32 @@
    <property name="title">
     <string>Difficulty Selection</string>
    </property>
+   <widget class="QWidget" name="horizontalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>371</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QLineEdit" name="diffLvEdit">
+       <property name="text">
+        <string>40</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>23-hell, 34-hard, 45-normal, 56-easy, 67-heavan</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
   </widget>
   <widget class="QLabel" name="labelTime">
    <property name="geometry">
@@ -103,6 +129,7 @@
      <height>371</height>
     </rect>
    </property>
+   <zorder>label</zorder>
   </widget>
   <widget class="QWidget" name="inputArea" native="true">
    <property name="geometry">
@@ -113,6 +140,7 @@
      <height>31</height>
     </rect>
    </property>
+   <zorder>groupBox</zorder>
   </widget>
  </widget>
  <resources/>

@@ -1,4 +1,7 @@
 #include <QPalette>
+#include <QMessageBox>
+#include <cstdlib>
+#include <ctime>
 
 #include "sudokore.hh"
 #include "mainwnd.hh"
@@ -11,9 +14,11 @@ MainWnd::MainWnd(QWidget* parent): QWidget(parent), ui(new Ui::MainWnd) {
 	for (int i = 0; i < 9; ++ i) {
 		QPushButton* pb(new QPushButton(this->ui->inputArea));
 		pb->setText(QString("%1").arg(i + 1));
+		pb->setWindowTitle(QString("%1").arg(i + 1));
 		pb->setGeometry(i * btnWidth, 0, btnWidth, btnHeight);
 		pb->show();
 		this->inputBtns[i] = pb;
+		QObject::connect(pb, SIGNAL(clicked()), this, SLOT(numberChanged()));
 	}
 	int clothWidth(this->ui->numberArea->width());
 	int clothHeight(this->ui->numberArea->height());
@@ -30,6 +35,8 @@ MainWnd::MainWnd(QWidget* parent): QWidget(parent), ui(new Ui::MainWnd) {
 		this->nums[i] = ng;
 	}
 	QObject::connect(this->ui->buttonReset, SIGNAL(clicked()), this, SLOT(reset()));
+	QObject::connect(this->ui->buttonUndo, SIGNAL(clicked()), this, SLOT(undo()));
+	QObject::connect(this->ui->buttonRedo, SIGNAL(clicked()), this, SLOT(redo()));
 }
 
 MainWnd::~MainWnd() {
@@ -58,13 +65,24 @@ void MainWnd::display() {
 }
 
 void MainWnd::activeChanged(int num) {
-	this->activeId = num;
+	if (num == this->activeId) {
+		this->activeId = -1;
+	} else {
+		this->activeId = num;
+	}
 	this->display();
 }
 
 void MainWnd::reset() {
 	Sudokore sk;
-	sk.generate();
+	QString diffLv(this->ui->diffLvEdit->text());
+	int difflv; 
+	bool valid;
+	difflv = diffLv.toInt(&valid);
+	if (!valid || difflv < 20 || difflv > 80) {
+		difflv = 50;
+	}
+	sk.generate(difflv);
 	BoardStatus b;
 	for (int i = 0; i < 81; ++ i) {
 		int x(1 ^ (1 << sk.get(i)));
@@ -81,3 +99,67 @@ void MainWnd::reset() {
 	this->display();
 }
 
+void MainWnd::numberChanged() {
+	if (this->optStack.empty() || this->activeId == -1) {
+		return;
+	}
+	BoardStatus bs(this->optStack.top());
+	QString titleText(((QPushButton*)this->sender())->windowTitle());
+	int chgNum(titleText.toInt());
+	bs[this->activeId] ^= 1 << chgNum;
+	this->optStack.push(bs);
+	for (; !this->redoStack.empty(); this->redoStack.pop());
+	this->display();
+	if (this->won()) {
+		QMessageBox* mb(new QMessageBox(this));
+		mb->setWindowTitle("HINT");
+		mb->setText("YOU WIN");
+		mb->exec();
+	}
+}
+
+bool MainWnd::won() {
+	if (this->optStack.empty()) {
+		return 0;
+	}
+	BoardStatus st(this->optStack.top());
+	Sudokore sdk;
+	for (int i = 0; i < 81; ++ i) {
+		int x(0);
+		for (int j = 1; j <= 9; ++ j) {
+			if (st[i] & (1 << j)) {
+				if (!x) {
+					x = j;
+				} else {
+					return 0;
+				}
+			}
+		}
+		sdk.set(i, x);
+	}
+	return sdk.isFinished();
+}
+
+void MainWnd::undo() {
+	if (this->optStack.empty()) {
+		return;
+	}
+	BoardStatus bs(this->optStack.top());
+	this->optStack.pop();
+	if (this->optStack.empty()) {
+		this->optStack.push(bs);
+	} else {
+		this->redoStack.push(bs);
+	}
+	this->display();
+}
+
+void MainWnd::redo() {
+	if (this->redoStack.empty()) {
+		return;
+	}
+	BoardStatus bs(this->redoStack.top());
+	this->optStack.push(bs);
+	this->redoStack.pop();
+	this->display();
+}

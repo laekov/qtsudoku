@@ -4,6 +4,10 @@
 #include <algorithm>
 #include "sudokore.hh"
 
+static int myrandom (int i) { 
+	return std::rand()%i;
+}
+
 void Sudokore::solveDFS(int i, int* r, int* l, int* b) {
 	if (i == 81) {
 		++ this->csol;
@@ -54,7 +58,7 @@ int Sudokore::solve(bool needReshuffle) {
 	memset(b, 0, sizeof(b));
 	srand(time(0));
 	if (needReshuffle) {
-		std::random_shuffle(this->o, this->o + 9);
+		std::random_shuffle(this->o, this->o + 9, myrandom);
 	}
 	for (int i = 0; i < 81; ++ i) {
 		if (this->a[i]) {
@@ -77,7 +81,7 @@ int Sudokore::generate(int diffLv) {
 	for (int i = 0; i < 81; ++ i) {
 		od[i] = i;
 	}
-	std::random_shuffle(od, od + 81);
+	std::random_shuffle(od, od + 81, myrandom);
 	memset(this->a, 0, sizeof(this->a));
 	this->solve();
 	memcpy(this->a, this->s, sizeof(this->s));
@@ -91,12 +95,7 @@ int Sudokore::generate(int diffLv) {
 			-- d;
 		}
 	}
-	for (int i = 0; i < 81; ++ i) {
-		fprintf(stderr, "%d ", s[i]);
-		if (i % 9 == 8) {
-			fprintf(stderr, "\n");
-		}
-	}
+	// for (int i = 0; i < 81; ++ i) { fprintf(stderr, "%d ", s[i]); if (i % 9 == 8) { fprintf(stderr, "\n"); } }
 	return d;
 }
 

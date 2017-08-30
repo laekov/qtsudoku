@@ -23,9 +23,13 @@ class MainWnd: public QWidget {
 		class NumGrid *nums[81];
 		std::stack<BoardStatus> optStack, redoStack;
 		int activeId;
+		bool won();
 	public slots:
 		void reset();
 		void display();
 		void activeChanged(int);
+		void numberChanged();
+		void undo();
+		void redo();
 };
 #endif
