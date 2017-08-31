@@ -24,12 +24,12 @@ void NumGrid::setNumber(int x) {
 	}
 	this->num = x;
 	if (x & 1) {
-		bgc = QColor(200, 200, 200);
+		bgc = Qt::gray;
 		this->setText(QString("%1").arg(ns[0]));
 		ro = 1;
 	} else if (totn == 0) {
 		this->setText("");
-		bgc = QColor(255, 255, 255);
+		bgc = Qt::white;
 	} else {
 		QString t("");
 		for (int i = 0; i < totn; ++ i) {
@@ -37,15 +37,16 @@ void NumGrid::setNumber(int x) {
 		}
 		this->setText(t);
 		if (totn == 1) {
-			bgc = QColor(200, 255, 200);
+			bgc = Qt::yellow;
 		} else {
-			bgc = QColor(200, 200, 255);
+			bgc = Qt::blue;
+			fgc = Qt::white;
 		}
 	}
 	if (x & (1 << 10)) {
-		bgc = Qt::yellow;
+		bgc = bgc.darker(150);
 	} else if (x & (1 << 11)) {
-		// fgc = Qt::white, bgc = Qt::darkBlue;
+	   	bgc = bgc.darker(110);
 	}
 	this->setReadOnly(ro);
 	this->setColor(bgc, fgc);

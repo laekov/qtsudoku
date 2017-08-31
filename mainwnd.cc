@@ -79,7 +79,7 @@ void MainWnd::reset() {
 	int difflv; 
 	bool valid;
 	difflv = diffLv.toInt(&valid);
-	if (!valid || difflv < 20 || difflv > 80) {
+	if (!valid || difflv < 10 || difflv > 80) {
 		difflv = 50;
 	}
 	sk.generate(difflv);

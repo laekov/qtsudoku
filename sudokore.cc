@@ -11,12 +11,12 @@ static int myrandom (int i) {
 void Sudokore::solveDFS(int i, int* r, int* l, int* b) {
 	if (i == 81) {
 		++ this->csol;
+		memcpy(this->s, this->a, sizeof(this->s));
 		return;
 	} else if (this->csol > 1) {
 		return;
 	}
 	if (this->a[i] != 0) {
-		this->s[i] = this->a[i];
 		solveDFS(i + 1, r, l, b);
 	} else {
 		int ri(i / 9), li(i % 9), bi(i / 9 / 3 * 3 + i % 9 / 3);
@@ -26,8 +26,9 @@ void Sudokore::solveDFS(int i, int* r, int* l, int* b) {
 				r[ri] |= 1 << v;
 				l[li] |= 1 << v;
 				b[bi] |= 1 << v;
-				this->s[i] = v;
+				this->a[i] = v;
 				this->solveDFS(i + 1, r, l, b);
+				this->a[i] = 0;
 				r[ri] &= ~(1 << v);
 				l[li] &= ~(1 << v);
 				b[bi] &= ~(1 << v);
@@ -64,7 +65,7 @@ int Sudokore::solve(bool needReshuffle) {
 		if (this->a[i]) {
 			int ri(i / 9), li(i % 9), bi(i / 9 / 3 * 3 + i % 9 / 3);
 			int v(a[i]);
-			if (((r[ri] & (1 << v)) == 0) && ((l[li] & (1 << v)) == 0) && ((b[bi] & (1 << v)) == 0)) {
+			if (((r[ri] & (1 << v)) != 0) || ((l[li] & (1 << v)) != 0) || ((b[bi] & (1 << v)) != 0)) {
 				return 0;
 			}
 			r[ri] |= 1 << v;
@@ -85,6 +86,7 @@ int Sudokore::generate(int diffLv) {
 	memset(this->a, 0, sizeof(this->a));
 	this->solve();
 	memcpy(this->a, this->s, sizeof(this->s));
+	// for (int i = 0; i < 81; ++ i) { fprintf(stderr, "%d%c", this->a[i], (i % 9 == 8) ? 10 : 32); }
 	int d(81);
 	for (int i = 0; i < 81 && d > diffLv; ++ i) {
 		int tmpv(this->a[od[i]]);
