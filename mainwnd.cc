@@ -10,7 +10,7 @@
 
 MainWnd::MainWnd(QWidget* parent): QWidget(parent), ui(new Ui::MainWnd) {
 	ui->setupUi(this);
-	int btnWidth(this->ui->inputArea->width() / 9), btnHeight(this->ui->inputArea->height());
+	int btnWidth(this->ui->inputArea->width() / 11), btnHeight(this->ui->inputArea->height());
 	for (int i = 0; i < 9; ++ i) {
 		QPushButton* pb(new QPushButton(this->ui->inputArea));
 		pb->setText(QString("%1").arg(i + 1));
@@ -19,6 +19,23 @@ MainWnd::MainWnd(QWidget* parent): QWidget(parent), ui(new Ui::MainWnd) {
 		pb->show();
 		this->inputBtns[i] = pb;
 		QObject::connect(pb, SIGNAL(clicked()), this, SLOT(numberChanged()));
+	} { 
+		QPushButton* pb(new QPushButton(this->ui->inputArea));
+		pb->setText("M");
+		pb->setWindowTitle("Mark");
+		pb->setWhatsThis("Set mark");
+		pb->setGeometry(9 * btnWidth, 0, btnWidth, btnHeight);
+		pb->setStyleSheet("background-color: cyan");
+		pb->show();
+		QObject::connect(pb, SIGNAL(clicked()), this, SLOT(setMark()));
+	} {
+		QPushButton* pb(new QPushButton(this->ui->inputArea));
+		pb->setText("C");
+		pb->setWindowTitle("Clear");
+		pb->setWhatsThis("Clear this grid");
+		pb->setGeometry(10 * btnWidth, 0, btnWidth, btnHeight);
+		pb->show();
+		QObject::connect(pb, SIGNAL(clicked()), this, SLOT(clearNumbers()));
 	}
 	int clothWidth(this->ui->numberArea->width());
 	int clothHeight(this->ui->numberArea->height());
@@ -48,17 +65,27 @@ void MainWnd::display() {
 		return;
 	}
 	BoardStatus bs(this->optStack.top());
-	int ar(-1), al(-1);
+	int ar(-1), al(-1), hs(0);
 	if (this->activeId != -1) {
 		ar = this->activeId / 9;
 		al = this->activeId % 9;
+		hs = bs[this->activeId] & 1;
+		if (hs) {
+			hs = bs[this->activeId] ^ 1;
+		}
 	}
 	for (int i = 0; i < 81; ++ i) {
 		int v(bs[i]), r(i / 9), l(i % 9);
-		if (i == this->activeId) {
-			v |= 1 << 10;
-		} else if (l == al || r == ar) {
-			v |= 1 << 11;
+		if (hs) {
+			if (bs[i] & hs) {
+				v |= 1 << 12;
+			}
+		} else {
+			if (i == this->activeId) {
+				v |= 1 << 10;
+			} else if (l == al || r == ar) {
+				v |= 1 << 11;
+			}
 		}
 		this->nums[i]->setNumber(v);
 	}
@@ -163,3 +190,36 @@ void MainWnd::redo() {
 	this->redoStack.pop();
 	this->display();
 }
+
+void MainWnd::setMark() {
+	if (this->optStack.empty()) {
+		return;
+	}
+	BoardStatus bs(this->optStack.top());
+	if (this->activeId == -1) {
+		return;
+	}
+	if (bs[this->activeId] & 1) {
+		return;
+	}
+	bs[this->activeId] ^= (1 << 13);
+	this->optStack.push(bs);
+	this->display();
+}
+
+void MainWnd::clearNumbers() {
+	if (this->optStack.empty()) {
+		return;
+	}
+	BoardStatus bs(this->optStack.top());
+	if (this->activeId == -1) {
+		return;
+	}
+	if (bs[this->activeId] & 1) {
+		return;
+	}
+	bs[this->activeId] &= 0;
+	this->optStack.push(bs);
+	this->display();
+}
+

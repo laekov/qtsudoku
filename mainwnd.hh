@@ -28,8 +28,10 @@ class MainWnd: public QWidget {
 		void reset();
 		void display();
 		void activeChanged(int);
+		void setMark();
 		void numberChanged();
 		void undo();
 		void redo();
+		void clearNumbers();
 };
 #endif

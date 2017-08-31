@@ -17,6 +17,7 @@ void NumGrid::setColor(QColor cbg, QColor cfg) {
 void NumGrid::setNumber(int x) {
 	int totn(0), ns[10], ro(0);
 	QColor fgc(Qt::black), bgc(Qt::white);
+	QString txt("");
 	for (int i = 1; i <= 9; ++ i) {
 		if (x & (1 << i)) {
 			ns[totn ++] = i;
@@ -25,17 +26,10 @@ void NumGrid::setNumber(int x) {
 	this->num = x;
 	if (x & 1) {
 		bgc = Qt::gray;
-		this->setText(QString("%1").arg(ns[0]));
 		ro = 1;
 	} else if (totn == 0) {
-		this->setText("");
 		bgc = Qt::white;
 	} else {
-		QString t("");
-		for (int i = 0; i < totn; ++ i) {
-			t += QString("%1").arg(ns[i]);
-		}
-		this->setText(t);
 		if (totn == 1) {
 			bgc = Qt::yellow;
 		} else {
@@ -43,10 +37,22 @@ void NumGrid::setNumber(int x) {
 			fgc = Qt::white;
 		}
 	}
+	for (int i = 0; i < totn; ++ i) {
+		txt += QString("%1").arg(ns[i]);
+	}
+	if (x & (1 << 13)) {
+		bgc = Qt::cyan;
+	}
 	if (x & (1 << 10)) {
 		bgc = bgc.darker(150);
 	} else if (x & (1 << 11)) {
 	   	bgc = bgc.darker(110);
+	} else if (x & (1 << 12)) {
+		bgc = Qt::red;
+		if (x & 1) {
+		} else {
+			bgc = bgc.lighter(170);
+		}
 	}
 	this->setReadOnly(ro);
 	this->setColor(bgc, fgc);
@@ -56,9 +62,10 @@ void NumGrid::setNumber(int x) {
 		static const int xs[] = { 1, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3 };
 		ch = ch / 1.7;
 		qf.setFamily("Monospace");
-		qf.setPointSize(ch / xs[totn]);
+		qf.setPixelSize(ch / xs[txt.length()]);
 		this->setFont(qf);
 	}
+	this->setText(txt);
 }
 
 bool NumGrid::eventFilter(QObject*, QEvent* evt) {
