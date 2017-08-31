@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>Sudoku - laekov</string>
   </property>
   <widget class="QWidget" name="horizontalLayoutWidget">
    <property name="geometry">
@@ -125,11 +125,10 @@
     <rect>
      <x>30</x>
      <y>30</y>
-     <width>381</width>
+     <width>411</width>
      <height>371</height>
     </rect>
    </property>
-   <zorder>label</zorder>
   </widget>
   <widget class="QWidget" name="inputArea" native="true">
    <property name="geometry">
@@ -140,7 +139,6 @@
      <height>31</height>
     </rect>
    </property>
-   <zorder>groupBox</zorder>
   </widget>
  </widget>
  <resources/>

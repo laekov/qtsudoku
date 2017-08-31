@@ -20,6 +20,8 @@ class MainWnd: public QWidget {
 	private:
 		Ui::MainWnd *ui;
 		QPushButton* inputBtns[9];
+		QTimer *timer;
+		int timeUsed, paused, finished;
 		class NumGrid *nums[81];
 		std::stack<BoardStatus> optStack, redoStack;
 		int activeId;
@@ -33,5 +35,7 @@ class MainWnd: public QWidget {
 		void undo();
 		void redo();
 		void clearNumbers();
+		void onTimerEvent();
+		void changePauseStatus();
 };
 #endif

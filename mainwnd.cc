@@ -1,4 +1,5 @@
 #include <QPalette>
+#include <QTimer>
 #include <QMessageBox>
 #include <cstdlib>
 #include <ctime>
@@ -54,6 +55,12 @@ MainWnd::MainWnd(QWidget* parent): QWidget(parent), ui(new Ui::MainWnd) {
 	QObject::connect(this->ui->buttonReset, SIGNAL(clicked()), this, SLOT(reset()));
 	QObject::connect(this->ui->buttonUndo, SIGNAL(clicked()), this, SLOT(undo()));
 	QObject::connect(this->ui->buttonRedo, SIGNAL(clicked()), this, SLOT(redo()));
+	this->timer = new QTimer;
+	this->timer->setInterval(990);
+	this->timer->start();
+	QObject::connect(this->timer, SIGNAL(timeout()), this, SLOT(onTimerEvent()));
+	this->timeUsed = 0, this->paused = 1;
+	QObject::connect(this->ui->buttonPause, SIGNAL(clicked()), this, SLOT(changePauseStatus()));
 }
 
 MainWnd::~MainWnd() {
@@ -76,7 +83,9 @@ void MainWnd::display() {
 	}
 	for (int i = 0; i < 81; ++ i) {
 		int v(bs[i]), r(i / 9), l(i % 9);
-		if (hs) {
+		if (this->paused) {
+			v = 0;
+		} else if (hs) {
 			if (bs[i] & hs) {
 				v |= 1 << 12;
 			}
@@ -123,6 +132,9 @@ void MainWnd::reset() {
 	}
 	this->activeId = -1;
 	this->optStack.push(b);
+	this->paused = 0;
+	this->timeUsed = 0;
+	this->finished = 0;
 	this->display();
 }
 
@@ -138,6 +150,7 @@ void MainWnd::numberChanged() {
 	for (; !this->redoStack.empty(); this->redoStack.pop());
 	this->display();
 	if (this->won()) {
+		this->finished = 1;
 		QMessageBox* mb(new QMessageBox(this));
 		mb->setWindowTitle("HINT");
 		mb->setText("YOU WIN");
@@ -223,3 +236,21 @@ void MainWnd::clearNumbers() {
 	this->display();
 }
 
+void MainWnd::onTimerEvent() {
+	if (!this->paused) {
+		if (!this->finished) {
+			++ this->timeUsed;
+		}
+		char tmp[11];
+		sprintf(tmp, "%d:%02d:%02d", this->timeUsed / 3600, this->timeUsed / 60 % 60, this->timeUsed % 60);
+		this->ui->labelTime->setText(QString(tmp));
+	} else {
+		this->ui->labelTime->setText("Paused");
+	}
+}
+
+void MainWnd::changePauseStatus() {
+	this->paused ^= 1;
+	this->ui->buttonPause->setText(this->paused ? "Continue" : "Pause");
+	this->display();
+}
