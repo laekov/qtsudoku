@@ -17,6 +17,7 @@ class Sudokore {
 			memcpy(this, &v, sizeof(Sudokore));
 		}
 		int get(int);
+		int sget(int);
 		void set(int, int);
 		int solve(bool = true);
 		int generate(int = 50);

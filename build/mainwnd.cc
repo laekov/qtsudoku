@@ -61,6 +61,7 @@ MainWnd::MainWnd(QWidget* parent): QWidget(parent), ui(new Ui::MainWnd) {
 	QObject::connect(this->timer, SIGNAL(timeout()), this, SLOT(onTimerEvent()));
 	this->timeUsed = 0, this->paused = 1;
 	QObject::connect(this->ui->buttonPause, SIGNAL(clicked()), this, SLOT(changePauseStatus()));
+	QObject::connect(this->ui->buttonAuto, SIGNAL(clicked()), this, SLOT(autoFill()));
 }
 
 MainWnd::~MainWnd() {
@@ -115,6 +116,7 @@ void MainWnd::reset() {
 	int difflv; 
 	bool valid;
 	difflv = diffLv.toInt(&valid);
+	this->solu.clear();
 	if (!valid || difflv < 10 || difflv > 80) {
 		difflv = 50;
 	}
@@ -123,6 +125,10 @@ void MainWnd::reset() {
 	for (int i = 0; i < 81; ++ i) {
 		int x(1 ^ (1 << sk.get(i)));
 		b.push_back(x);
+	}
+	sk.solve();
+	for (int i = 0; i < 81; ++ i) {
+		this->solu.push_back(sk.sget(i));
 	}
 	while (!this->optStack.empty()) {
 		this->optStack.pop();
@@ -254,3 +260,17 @@ void MainWnd::changePauseStatus() {
 	this->ui->buttonPause->setText(this->paused ? "Continue" : "Pause");
 	this->display();
 }
+
+void MainWnd::autoFill() {
+	if (this->optStack.empty()) {
+		return;
+	}
+	BoardStatus bs(this->optStack.top());
+	for (int i = 0; i < 81; ++ i) {
+		bs[i] &= ~ 0x03fe;
+		bs[i] |= 1 << this->solu[i];
+	}
+	this->optStack.push(bs);
+	this->display();
+}
+

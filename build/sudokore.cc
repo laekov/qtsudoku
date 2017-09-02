@@ -37,6 +37,14 @@ void Sudokore::solveDFS(int i, int* r, int* l, int* b) {
 	}
 }
 
+int Sudokore::sget(int x) {
+	if (x >= 0 && x < 81) {
+		return this->s[x];
+	} else {
+		return -1;
+	}
+}
+
 int Sudokore::get(int x) {
 	if (x >= 0 && x < 81) {
 		return this->a[x];
